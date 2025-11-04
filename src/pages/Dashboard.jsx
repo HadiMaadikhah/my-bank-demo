@@ -1,323 +1,345 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
+import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 import {
-  LayoutDashboard,
-  Send,
-  CreditCard,
-  Settings,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts"
+import {
   Banknote,
-  ArrowDownLeft,
-  ArrowUpRight,
-  ChevronDown,
+  Building2,
+  HandCoins,
+  Headphones,
+  CheckCircle2,
+  RefreshCw,
+  Save,
   Menu,
   X,
-  Users,
-  Bell,
-  Moon,
 } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
 
 export default function Dashboard() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [selectedProfile, setSelectedProfile] = useState("personal")
-  const [selectedAccount, setSelectedAccount] = useState(null)
+  const navigate = useNavigate()
 
-  // 💠 پروفایل‌ها
-  const profiles = {
-    personal: {
-      name: "Personal Profile",
-      accounts: [
+  // ---------- Demo Data ----------
+  const demoProfiles = useMemo(
+    () => ({
+      Personal: [
         {
           id: 1,
-          name: "Main Account",
-          number: "**** 1032",
-          type: "Current",
-          balance: "AED 12,450.75",
-          salaryAccount: true,
+          name: "Savings Account",
+          number: "123-4567890",
+          balance: 52430,
+          salary: true,
           transactions: [
-            { id: 1, title: "Starbucks", amount: "- AED 18.50", type: "out", date: "Nov 1, 10:32 AM" },
-            { id: 2, title: "Salary Credit", amount: "+ AED 8,000.00", type: "in", date: "Oct 30, 08:00 AM" },
-            { id: 3, title: "Netflix", amount: "- AED 55.00", type: "out", date: "Oct 28, 09:21 PM" },
-            { id: 4, title: "Uber Ride", amount: "- AED 35.00", type: "out", date: "Oct 26, 05:15 PM" },
+            { id: 1, type: "Salary Credit", amount: "+AED 12,000", date: "Nov 01, 2025" },
+            { id: 2, type: "ATM Withdrawal", amount: "-AED 500", date: "Oct 29, 2025" },
+            { id: 3, type: "Utility Bill", amount: "-AED 240", date: "Oct 28, 2025" },
+            { id: 4, type: "Transfer In", amount: "+AED 1,000", date: "Oct 27, 2025" },
+            { id: 5, type: "Grocery Payment", amount: "-AED 150", date: "Oct 26, 2025" },
           ],
         },
         {
           id: 2,
-          name: "Savings Account",
-          number: "**** 8471",
-          type: "Savings",
-          balance: "AED 28,920.00",
-          salaryAccount: false,
+          name: "Current Account",
+          number: "987-6543210",
+          balance: 18940,
+          salary: false,
           transactions: [
-            { id: 1, title: "Interest Credit", amount: "+ AED 52.00", type: "in", date: "Nov 1, 09:00 AM" },
-            { id: 2, title: "Transfer to Main", amount: "- AED 1,000.00", type: "out", date: "Oct 27, 02:10 PM" },
-            { id: 3, title: "Bonus Credit", amount: "+ AED 1,500.00", type: "in", date: "Oct 25, 10:20 AM" },
+            { id: 1, type: "Transfer Out", amount: "-AED 2,000", date: "Oct 30, 2025" },
+            { id: 2, type: "Salary Credit", amount: "+AED 8,000", date: "Oct 27, 2025" },
+            { id: 3, type: "POS Payment", amount: "-AED 100", date: "Oct 25, 2025" },
+            { id: 4, type: "Bill Payment", amount: "-AED 200", date: "Oct 24, 2025" },
+            { id: 5, type: "ATM Withdrawal", amount: "-AED 500", date: "Oct 23, 2025" },
           ],
         },
       ],
-    },
-    business: {
-      name: "Business Profile",
-      accounts: [
+      Business: [
         {
           id: 3,
-          name: "Corporate Account",
-          number: "**** 2211",
-          type: "Business",
-          balance: "AED 102,000.00",
-          salaryAccount: true,
+          name: "Corporate Main",
+          number: "556-7821345",
+          balance: 180600,
+          salary: false,
           transactions: [
-            { id: 1, title: "Payroll Batch", amount: "- AED 40,000.00", type: "out", date: "Nov 1, 08:00 AM" },
-            { id: 2, title: "Client Payment", amount: "+ AED 25,000.00", type: "in", date: "Oct 30" },
+            { id: 1, type: "Vendor Payment", amount: "-AED 12,000", date: "Oct 31, 2025" },
+            { id: 2, type: "Client Deposit", amount: "+AED 45,000", date: "Oct 25, 2025" },
+            { id: 3, type: "Transfer Out", amount: "-AED 8,200", date: "Oct 22, 2025" },
+            { id: 4, type: "Service Fee", amount: "-AED 300", date: "Oct 20, 2025" },
+            { id: 5, type: "Transfer In", amount: "+AED 10,000", date: "Oct 18, 2025" },
           ],
         },
       ],
-    },
-    joint: {
-      name: "Joint Account Profile",
-      accounts: [
+      Joint: [
         {
           id: 4,
-          name: "Family Account",
-          number: "**** 5678",
-          type: "Joint",
-          balance: "AED 18,350.50",
-          salaryAccount: false,
+          name: "Joint Account",
+          number: "224-1100987",
+          balance: 75600,
+          salary: false,
           transactions: [
-            { id: 1, title: "Electric Bill", amount: "- AED 600.00", type: "out", date: "Nov 2, 11:00 AM" },
-            { id: 2, title: "Shared Deposit", amount: "+ AED 2,000.00", type: "in", date: "Oct 30" },
-            { id: 3, title: "Supermarket", amount: "- AED 420.00", type: "out", date: "Oct 28" },
+            { id: 1, type: "Deposit", amount: "+AED 25,000", date: "Nov 01, 2025" },
+            { id: 2, type: "Transfer Out", amount: "-AED 2,000", date: "Oct 30, 2025" },
+            { id: 3, type: "Payment Received", amount: "+AED 1,200", date: "Oct 29, 2025" },
+            { id: 4, type: "Bill Payment", amount: "-AED 500", date: "Oct 28, 2025" },
+            { id: 5, type: "POS Payment", amount: "-AED 200", date: "Oct 27, 2025" },
           ],
         },
       ],
-    },
-  }
+    }),
+    []
+  )
 
-  const activeProfile = profiles[selectedProfile]
+  const [activeProfile, setActiveProfile] = useState("Personal")
+  const [selectedAccountId, setSelectedAccountId] = useState(null)
+  const [activeMenu, setActiveMenu] = useState("Banking")
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const accounts = demoProfiles[activeProfile]
+  const selectedAccount = accounts.find((a) => a.id === selectedAccountId) || null
+
+  const sidebarItems = [
+    { key: "Banking", label: "Banking", icon: Banknote },
+    { key: "Facilities", label: "Facilities", icon: Building2 },
+    { key: "Requests", label: "Requests", icon: HandCoins },
+    { key: "Customer Service", label: "Customer Service", icon: Headphones },
+  ]
+
+  const handleSetAsSalary = () =>
+    toast.success("Salary account updated successfully.")
+  const handleRefreshTx = () => toast.info("Refreshing transactions...")
+  const handleSaveChanges = () => toast.success("Changes saved successfully.")
+
+  const COLORS = ["#2E3092", "#4C51BF", "#A3A8F0", "#CBD5E0"]
+  const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0)
+  const chartData = accounts.map((acc) => ({
+    name: acc.name,
+    value: parseFloat(((acc.balance / totalBalance) * 100).toFixed(1)),
+  }))
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-gradient-to-br from-[#f4f5ff] to-white text-gray-800 relative">
-      {/* HEADER موبایل */}
-      <header className="md:hidden flex items-center justify-between p-4 bg-[#2e3092] text-white shadow-md">
-        <button onClick={() => setSidebarOpen(true)}>
-          <Menu className="w-6 h-6" />
-        </button>
-        <h1 className="font-semibold text-lg">MyBank</h1>
-        <div className="w-6 h-6" />
-      </header>
-
-      {/* SIDEBAR */}
+    <div className="flex min-h-screen bg-gray-50 text-gray-800">
+      {/* Sidebar */}
       <aside
-        className={`fixed md:static z-40 bg-[#2e3092] text-white w-64 md:w-64 h-full flex flex-col justify-between p-6 shadow-xl transform transition-transform duration-300 ease-in-out ${
+        className={`fixed md:static z-50 top-0 left-0 h-full w-64 bg-[#2E3092] text-white flex flex-col py-6 transform transition-transform duration-300 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
-        <div>
-          <button onClick={() => setSidebarOpen(false)} className="absolute top-4 right-4 md:hidden">
-            <X className="w-6 h-6" />
+        <div className="px-6 pb-5 border-b border-white/15 flex justify-between items-center">
+          <div>
+            <h2 className="text-lg font-semibold tracking-wide">Customer Portal</h2>
+            <p className="text-xs text-white/70">Welcome to MyBank</p>
+          </div>
+          <button
+            className="md:hidden text-white"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X size={20} />
           </button>
-          <h2 className="text-2xl font-bold mb-8 mt-2">MyBank</h2>
-
-          <nav className="flex flex-col gap-5 text-sm font-medium">
-            <button className="flex items-center gap-2 hover:text-yellow-300 transition">
-              <LayoutDashboard size={18} />
-              <span>Dashboard</span>
-            </button>
-            <button className="flex items-center gap-2 hover:text-yellow-300 transition">
-              <Send size={18} />
-              <span>Transfer</span>
-            </button>
-            <button className="flex items-center gap-2 hover:text-yellow-300 transition">
-              <CreditCard size={18} />
-              <span>Pay Bills</span>
-            </button>
-            <button className="flex items-center gap-2 hover:text-yellow-300 transition">
-              <Settings size={18} />
-              <span>Settings</span>
-            </button>
-          </nav>
         </div>
 
-        <div className="text-xs text-gray-300 mt-8 border-t border-white/20 pt-4">
-          <p>© 2025 MyBank</p>
-          <p>Secure. Fast. Reliable.</p>
+        <nav className="mt-4 flex-1 space-y-1 px-3">
+          {sidebarItems.map(({ key, label, icon: Icon }) => (
+            <button
+              key={key}
+              onClick={() => setActiveMenu(key)}
+              className={`w-full text-left flex items-center gap-3 px-4 py-2 rounded-md transition ${
+                activeMenu === key
+                  ? "bg-white text-[#2E3092] font-medium"
+                  : "hover:bg-white/10 text-white/90"
+              }`}
+            >
+              <Icon size={18} />
+              <span>{label}</span>
+            </button>
+          ))}
+        </nav>
+
+        <div className="mt-auto px-6 pt-4 pb-2 border-t border-white/10 text-xs text-white/65">
+          © 2025 MyBank UAE
         </div>
       </aside>
 
-      {/* BACKDROP موبایل */}
+      {/* Overlay (for mobile sidebar) */}
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 md:hidden"
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
         />
       )}
 
-      {/* MAIN CONTENT */}
-      <main className="flex-1 p-0 md:p-8 mt-14 md:mt-0">
-        {/* 💠 TOPBAR فقط در دسکتاپ */}
-        <div className="hidden md:flex items-center justify-between bg-white shadow-sm rounded-xl px-6 py-3 mb-6 border border-gray-100">
-          <h1 className="text-[#2e3092] font-semibold text-lg">Dashboard</h1>
-          <div className="flex items-center gap-5">
-            <div className="relative">
-              <Bell className="w-6 h-6 text-[#2e3092] cursor-pointer hover:scale-110 transition" />
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] px-[5px] rounded-full">
-                3
-              </span>
-            </div>
-            <Moon className="w-5 h-5 text-[#2e3092] cursor-pointer hover:text-yellow-500 transition" />
-            <div className="flex items-center gap-2 border-l pl-4 border-gray-200">
-              <img
-                src="https://i.pravatar.cc/40?img=12"
-                alt="avatar"
-                className="w-8 h-8 rounded-full border border-[#2e3092]"
-              />
-              <span className="text-sm font-medium text-gray-700">Noura Khalid</span>
+      {/* Main Content */}
+      <main className="flex-1 p-4 md:p-8">
+        {/* Header for mobile */}
+        <div className="flex items-center justify-between mb-6 md:hidden">
+          <button
+            className="text-[#2E3092]"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <Menu size={24} />
+          </button>
+          <h1 className="text-xl font-bold text-[#2E3092]">Dashboard</h1>
+          <div className="w-6" />
+        </div>
+
+        <h1 className="hidden md:block text-2xl font-bold text-[#2E3092] mb-6">
+          Dashboard
+        </h1>
+
+        {/* Chart Section */}
+        <section className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 mb-8">
+          <h2 className="text-lg font-semibold text-[#2E3092] mb-4">
+            Account Balance Distribution
+          </h2>
+          <div className="w-full h-64">
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie
+                  data={chartData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={90}
+                  label={({ name, value }) => `${name}: ${value}%`}
+                >
+                  {chartData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </section>
+
+        {/* Profiles */}
+        <section className="mb-6">
+          <h2 className="text-lg font-semibold text-[#2E3092] mb-2">Profiles</h2>
+          <div className="flex flex-wrap gap-2">
+            {Object.keys(demoProfiles).map((p) => (
+              <button
+                key={p}
+                onClick={() => {
+                  setActiveProfile(p)
+                  setSelectedAccountId(null)
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                  activeProfile === p
+                    ? "bg-[#2E3092] text-white"
+                    : "bg-white border border-[#2E3092]/35 text-[#2E3092] hover:bg-[#2E3092]/10"
+                }`}
+              >
+                {p} Profile
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Accounts & Transactions (Stacked in mobile) */}
+        <section className="space-y-8">
+          <div>
+            <h2 className="text-lg font-semibold text-[#2E3092] mb-3">
+              {activeProfile} Accounts
+            </h2>
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+              {accounts.map((acc) => (
+                <div
+                  key={acc.id}
+                  onClick={() => setSelectedAccountId(acc.id)}
+                  className={`border rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition cursor-pointer ${
+                    selectedAccountId === acc.id
+                      ? "border-[#2E3092] ring-2 ring-[#2E3092]/20"
+                      : "border-gray-200"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-[#2E3092] font-semibold">{acc.name}</h3>
+                    {acc.salary && (
+                      <CheckCircle2 className="text-green-500" title="Salary Account" />
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600 mt-1">{acc.number}</p>
+                  <p className="text-sm font-medium text-gray-800 mt-1">
+                    Balance:{" "}
+                    <span className="text-[#2E3092]">
+                      AED {acc.balance.toLocaleString()}
+                    </span>
+                  </p>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* Profile Selector */}
-        <div className="flex gap-3 mb-6 overflow-x-auto pb-2 px-4 md:px-0">
-          {Object.entries(profiles).map(([key, profile]) => (
-            <button
-              key={key}
-              onClick={() => {
-                setSelectedProfile(key)
-                setSelectedAccount(null)
-              }}
-              className={`px-4 py-2 rounded-full border text-sm font-medium transition whitespace-nowrap ${
-                selectedProfile === key
-                  ? "bg-[#2e3092] text-white border-[#2e3092]"
-                  : "border-[#2e3092] text-[#2e3092] hover:bg-[#2e3092]/10"
-              }`}
-            >
-              <Users className="w-4 h-4 inline mr-1" />
-              {profile.name}
-            </button>
-          ))}
-        </div>
-
-        {/* Animated Profile Content */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={selectedProfile}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.4 }}
-            className="px-4 md:px-0"
-          >
-            {/* Accounts List */}
-            <div className="grid md:grid-cols-2 gap-4 mb-8">
-              {activeProfile.accounts.map((acc) => {
-                const isSelected = selectedAccount?.id === acc.id
-                return (
-                  <div
-                    key={acc.id}
-                    onClick={() => setSelectedAccount(isSelected ? null : acc)}
-                    className={`p-4 rounded-xl border cursor-pointer transition shadow-sm hover:shadow-md bg-white ${
-                      isSelected ? "border-[#2e3092]" : "border-gray-200"
-                    }`}
+          {selectedAccount && (
+            <div>
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3 gap-3">
+                <h2 className="text-xl font-semibold text-[#2E3092]">
+                  Last 5 Transactions — {selectedAccount.name}
+                </h2>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={handleSetAsSalary}
+                    className="inline-flex items-center gap-2 bg-[#2E3092] hover:bg-[#23246e] text-white px-3 py-2 rounded-md text-sm transition"
                   >
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-[#2e3092] font-semibold">{acc.name}</p>
-                        <p className="text-sm text-gray-500">
-                          {acc.type} • {acc.number}
-                        </p>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        {acc.salaryAccount && (
-                          <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-medium">
-                            Salary Account
-                          </span>
-                        )}
-                        <ChevronDown
-                          className={`w-5 h-5 mt-1 text-[#2e3092] transform transition-transform duration-300 ${
-                            isSelected ? "rotate-180" : ""
-                          }`}
-                        />
-                      </div>
-                    </div>
-
-                    <p className="text-lg font-bold mt-2">{acc.balance}</p>
-
-                    {/* Transactions (mobile) */}
-                    <div
-                      className={`md:hidden transition-all duration-500 overflow-hidden ${
-                        isSelected ? "max-h-96 mt-3" : "max-h-0"
-                      }`}
-                    >
-                      <h3 className="text-sm font-semibold mb-2 text-gray-600">Last Transactions</h3>
-                      <div className="space-y-3">
-                        {acc.transactions.map((t) => (
-                          <div
-                            key={t.id}
-                            className="flex justify-between items-center border-b pb-2 border-gray-100"
-                          >
-                            <div>
-                              <p className="font-medium">{t.title}</p>
-                              <p className="text-xs text-gray-500">{t.date}</p>
-                            </div>
-                            <div
-                              className={`flex items-center gap-1 font-semibold ${
-                                t.type === "in" ? "text-green-600" : "text-red-600"
-                              }`}
-                            >
-                              {t.type === "in" ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
-                              {t.amount}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Transactions (desktop) */}
-            {selectedAccount && (
-              <motion.div
-                key={selectedAccount.id}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
-                className="hidden md:block bg-white rounded-xl shadow-md p-5"
-              >
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-lg font-semibold text-[#2e3092]">{selectedAccount.name}</h2>
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Banknote size={16} />
-                    <span>{selectedAccount.number}</span>
-                  </div>
+                    <CheckCircle2 size={16} />
+                    Set as Salary
+                  </button>
+                  <button
+                    onClick={handleRefreshTx}
+                    className="inline-flex items-center gap-2 bg-white border border-[#2E3092]/40 text-[#2E3092] hover:bg-[#2E3092]/5 px-3 py-2 rounded-md text-sm transition"
+                  >
+                    <RefreshCw size={16} />
+                    Refresh
+                  </button>
+                  <button
+                    onClick={handleSaveChanges}
+                    className="inline-flex items-center gap-2 bg-[#2E3092] hover:bg-[#23246e] text-white px-3 py-2 rounded-md text-sm transition"
+                  >
+                    <Save size={16} />
+                    Save
+                  </button>
                 </div>
-                <h3 className="text-sm font-semibold mb-2 text-gray-600">Last Transactions</h3>
-                <div className="space-y-3">
-                  {selectedAccount.transactions.map((t) => (
-                    <div
-                      key={t.id}
-                      className="flex justify-between items-center border-b pb-2 border-gray-100"
-                    >
-                      <div>
-                        <p className="font-medium">{t.title}</p>
-                        <p className="text-xs text-gray-500">{t.date}</p>
-                      </div>
-                      <div
-                        className={`flex items-center gap-1 font-semibold ${
-                          t.type === "in" ? "text-green-600" : "text-red-600"
-                        }`}
+              </div>
+
+              <div className="bg-white rounded-xl shadow border border-gray-200 overflow-x-auto">
+                <table className="w-full text-sm min-w-[500px]">
+                  <thead className="bg-[#2E3092] text-white">
+                    <tr>
+                      <th className="py-3 px-4 text-left">Date</th>
+                      <th className="py-3 px-4 text-left">Type</th>
+                      <th className="py-3 px-4 text-left">Amount</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {selectedAccount.transactions.map((tx) => (
+                      <tr
+                        key={tx.id}
+                        className="border-t hover:bg-gray-50 transition"
                       >
-                        {t.type === "in" ? <ArrowDownLeft size={16} /> : <ArrowUpRight size={16} />}
-                        {t.amount}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </motion.div>
-        </AnimatePresence>
+                        <td className="py-2 px-4">{tx.date}</td>
+                        <td className="py-2 px-4">{tx.type}</td>
+                        <td
+                          className={`py-2 px-4 font-medium ${
+                            tx.amount.startsWith("-")
+                              ? "text-red-500"
+                              : "text-green-600"
+                          }`}
+                        >
+                          {tx.amount}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+        </section>
       </main>
     </div>
   )
